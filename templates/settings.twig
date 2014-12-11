@@ -1,0 +1,32 @@
+{% import "_includes/forms" as forms %}
+
+<div class="settings">
+	<h2>{{ "Settings" | t }}</h2>
+	<h3>{{ "General" | t }}</h3>
+	{{
+		forms.textField({
+			id:				"standardTtl",
+			name:			"standardTtl",
+			value:			settings.standardTtl,
+			label:			"Standard ttl for a page<br>Default: 86400 (1 day)" | t,
+		})
+	}}
+	{{
+		forms.textField({
+			id:				"varnishServer",
+			name:			"varnishServer",
+			value:			settings.varnishServer,
+			label:			"Url or ipadress of the Varnish server" | t,
+		})
+	}}
+	<h3>{{ "Url settings" | t }}</h3>
+	{{
+		forms.textareaField({
+			id:				"excludefromCache",
+			name:			"excludefromCache",
+			label:			"Put the urls (or the first part of the urls) in the textarea below. 1 url per line." | t,
+			value:			settings.excludefromCache,
+			rows:			10
+		})
+	}}
+</div>
