@@ -29,4 +29,14 @@
 			rows:			10
 		})
 	}}
+
+	{{
+		forms.multiSelectField({
+			name:			"purgeGlobalOnSaveEntryFromSection",
+			label:			"Sections that should purge the global content when an entry is edited." | t,
+			values:			settings.purgeGlobalOnSaveEntryFromSection,
+			options:		sections,
+			size:			sections|length < 20 ? sections|length : 20
+		})
+	}}
 </div>

@@ -51,15 +51,42 @@ class AmVarnishCacheControlService extends BaseApplicationComponent
 		}
 	}
 
-	public function purgeCache()
+	private function getRequestUriFromUrl($url)
 	{
-		$curl = curl_init($this->settings['varnishServer']);
-		curl_setopt($curl, CURLOPT_CUSTOMREQUEST,' PURGE');
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		if (curl_exec($curl) === false)
+		// Remove http(s) + host + optional port from url
+		return preg_replace('/http(s|):\/\/' . $_SERVER['HTTP_HOST'] . '(:([0-9]+))*/', '', $url);
+	}
+
+	private function entryInSectionPurgeGlobally(EntryModel $entry)
+	{
+		return in_array($entry->section->id, $this->settings['purgeGlobalOnSaveEntryFromSection']);
+	}
+
+	public function purgeCacheForEntry(EntryModel $entry)
+	{
+		if (!empty($entry->url) && !$this->entryInSectionPurgeGlobally($entry))
 		{
-			echo curl_error($curl);
+			$this->purgeCache($entry->url);
 		}
+		else
+		{
+			$this->purgeCache();
+		}
+	}
+
+	public function purgeCache($url = null)
+	{
+		$uri = !empty($url) ? $this->getRequestUriFromUrl($url) : $this->getRequestUriFromUrl(craft()->siteUrl);
+
+		$curl = curl_init($this->settings['varnishServer'] . $uri);
+		$request_headers = array('Host: ' . $_SERVER['HTTP_HOST']);
+
+		curl_setopt($curl, CURLOPT_CUSTOMREQUEST,'BAN');
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $request_headers);
+
+		curl_exec($curl);
+
 		curl_close($curl);
 	}
 }
